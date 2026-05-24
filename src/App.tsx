@@ -89,8 +89,8 @@ function App() {
       <Container size="lg" py="xl" className="app-container">
         <Stack gap="lg" className="screen-layout">
           <Paper className="summary-panel" withBorder radius="sm" p="lg">
-            <Group justify="space-between" align="flex-start" gap="lg">
-              <Group gap="md" align="center">
+            <Group className="app-header" justify="space-between" align="flex-start" gap="lg">
+              <Group className="app-title" gap="md" align="center">
                 <img className="app-logo" src={logoSrc} alt="South of Shaw Beer Company" />
                 <Box>
                   <Title order={1}>Tip Calculator</Title>
@@ -100,7 +100,7 @@ function App() {
                 </Box>
               </Group>
               <Button
-                className="screen-only"
+                className="screen-only print-button"
                 leftSection={<Printer size={18} />}
                 onClick={() => window.print()}
               >
@@ -125,6 +125,7 @@ function App() {
                   value={totalTips}
                   onChange={(value) => setTotalTips(Number(value) || 0)}
                   prefix="$"
+                  hideControls
                   min={0}
                   decimalScale={2}
                   fixedDecimalScale
@@ -136,6 +137,7 @@ function App() {
                   label="BOH %"
                   value={bohPercent}
                   onChange={(value) => setBohPercent(Number(value) || 0)}
+                  hideControls
                   min={0}
                   decimalScale={2}
                   suffix="%"
@@ -146,6 +148,7 @@ function App() {
                   label="FOH %"
                   value={fohPercent}
                   onChange={(value) => setFohPercent(Number(value) || 0)}
+                  hideControls
                   min={0}
                   decimalScale={2}
                   suffix="%"
@@ -266,6 +269,7 @@ function EmployeeGroup({
                     aria-label={`${result.label} hours for ${row.name || 'employee'}`}
                     value={row.hours}
                     onChange={(value) => updateRow(row.id, { hours: Number(value) || 0 })}
+                    hideControls
                     min={0}
                     decimalScale={2}
                   />
@@ -274,6 +278,7 @@ function EmployeeGroup({
                 <Table.Td className="screen-only action-column">
                   <ActionIcon
                     aria-label={`Remove ${row.name || 'employee row'}`}
+                    size={40}
                     variant="subtle"
                     color="red"
                     onClick={() => removeRow(row.id)}

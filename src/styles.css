@@ -13,6 +13,12 @@ body {
   background: #f5f7f8;
 }
 
+input,
+textarea,
+select {
+  font-size: 16px !important;
+}
+
 .app-container {
   min-height: 100vh;
 }
@@ -63,14 +69,48 @@ body {
 }
 
 @media (max-width: 560px) {
+  .app-container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .summary-panel,
+  .group-panel,
+  .totals-panel {
+    padding: 14px !important;
+  }
+
+  .app-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .app-title {
+    flex-wrap: nowrap;
+  }
+
   .app-logo {
     height: 56px;
     width: 56px;
   }
 
+  .print-button {
+    width: 100%;
+  }
+
+  .tips-table th,
+  .tips-table td {
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+  }
+
   .hours-column,
   .money-column {
-    width: 96px;
+    width: 84px;
+  }
+
+  .action-column {
+    width: 40px;
   }
 
   .tips-table input {
