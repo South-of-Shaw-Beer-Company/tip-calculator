@@ -39,6 +39,7 @@ const initialFohRows: EmployeeRow[] = [
 ];
 
 const today = new Date().toISOString().slice(0, 10);
+const logoSrc = '/south-of-shaw-logo.png';
 
 function App() {
   const [date, setDate] = useState(today);
@@ -89,12 +90,15 @@ function App() {
         <Stack gap="lg" className="screen-layout">
           <Paper className="summary-panel" withBorder radius="sm" p="lg">
             <Group justify="space-between" align="flex-start" gap="lg">
-              <Box>
-                <Title order={1}>Tip Calculator</Title>
-                <Text c="dimmed" mt={4}>
-                  Cash tip allocation by employee hours
-                </Text>
-              </Box>
+              <Group gap="md" align="center">
+                <img className="app-logo" src={logoSrc} alt="South of Shaw Beer Company" />
+                <Box>
+                  <Title order={1}>Tip Calculator</Title>
+                  <Text c="dimmed" mt={4}>
+                    Cash tip allocation by employee hours
+                  </Text>
+                </Box>
+              </Group>
               <Button
                 className="screen-only"
                 leftSection={<Printer size={18} />}
@@ -311,9 +315,12 @@ function PrintReport({
   return (
     <section className="print-report" aria-label="Printable tip allocation report">
       <header className="report-header">
-        <div>
-          <h1>Tip Allocation Report</h1>
-          <p>Cash tips distributed by employee hours</p>
+        <div className="report-brand">
+          <img src={logoSrc} alt="South of Shaw Beer Company" />
+          <div>
+            <h1>Tip Allocation Report</h1>
+            <p>Cash tips distributed by employee hours</p>
+          </div>
         </div>
         <div className="report-date">
           <span>Date</span>

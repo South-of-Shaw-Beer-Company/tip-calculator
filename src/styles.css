@@ -23,6 +23,13 @@ body {
   background: #ffffff;
 }
 
+.app-logo {
+  display: block;
+  flex: 0 0 auto;
+  height: 72px;
+  width: 72px;
+}
+
 .tips-table {
   table-layout: fixed;
 }
@@ -56,6 +63,11 @@ body {
 }
 
 @media (max-width: 560px) {
+  .app-logo {
+    height: 56px;
+    width: 56px;
+  }
+
   .hours-column,
   .money-column {
     width: 96px;
@@ -108,6 +120,18 @@ body {
     justify-content: space-between;
     margin-bottom: 10px;
     padding-bottom: 8px;
+  }
+
+  .report-brand {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+  }
+
+  .report-brand img {
+    display: block;
+    height: 52px;
+    width: 52px;
   }
 
   .report-header h1 {
