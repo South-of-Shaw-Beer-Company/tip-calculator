@@ -39,7 +39,7 @@ const initialFohRows: EmployeeRow[] = [
 ];
 
 const today = new Date().toISOString().slice(0, 10);
-const logoSrc = '/south-of-shaw-logo.png';
+const appIconSrc = '/apple-touch-icon.png';
 
 function App() {
   const [date, setDate] = useState(today);
@@ -91,7 +91,7 @@ function App() {
           <Paper className="summary-panel" withBorder radius="sm" p="lg">
             <Group className="app-header" justify="space-between" align="flex-start" gap="lg">
               <Group className="app-title" gap="md" align="center">
-                <img className="app-logo" src={logoSrc} alt="South of Shaw Beer Company" />
+                <img className="app-logo" src={appIconSrc} alt="Tip Calculator app icon" />
                 <Box>
                   <Title order={1}>Tip Calculator</Title>
                   <Text c="dimmed" mt={4}>
@@ -321,7 +321,7 @@ function PrintReport({
     <section className="print-report" aria-label="Printable tip allocation report">
       <header className="report-header">
         <div className="report-brand">
-          <img src={logoSrc} alt="South of Shaw Beer Company" />
+          <img src={appIconSrc} alt="Tip Calculator app icon" />
           <div>
             <h1>Tip Allocation Report</h1>
             <p>Cash tips distributed by employee hours</p>
