@@ -68,6 +68,20 @@ select {
   display: none;
 }
 
+.mobile-share-button {
+  display: none;
+}
+
+@media (max-width: 767px), (hover: none) and (pointer: coarse) {
+  .desktop-print-button {
+    display: none;
+  }
+
+  .mobile-share-button {
+    display: inline-flex;
+  }
+}
+
 @media (max-width: 560px) {
   .app-container {
     padding-left: 12px;

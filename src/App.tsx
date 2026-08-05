@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   ActionIcon,
   Alert,
@@ -20,11 +20,14 @@ import {
   TextInput,
   Title,
 } from '@mantine/core';
-import { AlertTriangle, Plus, Printer, Trash2 } from 'lucide-react';
+import { AlertTriangle, Plus, Printer, Share2, Trash2 } from 'lucide-react';
 import { calculateGroup, centsFromDollars, formatCurrency } from './calculations';
 import type { EmployeeRow, GroupKey, GroupResult } from './types';
 
-const createId = () => crypto.randomUUID();
+let fallbackRowId = 0;
+
+const createId = () =>
+  globalThis.crypto?.randomUUID?.() ?? `row-${Date.now()}-${fallbackRowId++}`;
 
 const initialBohRows: EmployeeRow[] = [
   { id: createId(), name: 'Emp 1', hours: 3 },
@@ -41,6 +44,15 @@ const initialFohRows: EmployeeRow[] = [
 const today = new Date().toISOString().slice(0, 10);
 const appIconSrc = '/apple-touch-icon.png';
 
+const loadAppIcon = async () => {
+  try {
+    const response = await fetch(appIconSrc);
+    return response.ok ? new Uint8Array(await response.arrayBuffer()) : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 function App() {
   const [date, setDate] = useState(today);
   const [totalTips, setTotalTips] = useState(20);
@@ -48,6 +60,13 @@ function App() {
   const [fohPercent, setFohPercent] = useState(90);
   const [bohRows, setBohRows] = useState<EmployeeRow[]>(initialBohRows);
   const [fohRows, setFohRows] = useState<EmployeeRow[]>(initialFohRows);
+  const [isSharingPdf, setIsSharingPdf] = useState(false);
+  const [pdfError, setPdfError] = useState('');
+
+  useEffect(() => {
+    void import('./report-pdf');
+    void loadAppIcon();
+  }, []);
 
   const totalTipsCents = centsFromDollars(totalTips);
   const percentTotal = bohPercent + fohPercent;
@@ -84,6 +103,50 @@ function App() {
     }
   };
 
+  const sharePdf = async () => {
+    setIsSharingPdf(true);
+    setPdfError('');
+
+    try {
+      const [{ createTipAllocationPdf }, iconData] = await Promise.all([
+        import('./report-pdf'),
+        loadAppIcon(),
+      ]);
+      const { blob, filename } = createTipAllocationPdf({
+        date,
+        totalTipsCents,
+        percentTotal,
+        hasPercentMismatch,
+        results,
+        totalPayoutCents,
+        totalRemainderCents,
+        iconData,
+      });
+      const file = new File([blob], filename, { type: 'application/pdf' });
+      const shareData = { files: [file], title: 'Tip Allocation Report' };
+
+      if (navigator.canShare?.(shareData)) {
+        await navigator.share(shareData);
+        return;
+      }
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.click();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1_000);
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        return;
+      }
+
+      setPdfError('Unable to create the PDF. Please try again.');
+    } finally {
+      setIsSharingPdf(false);
+    }
+  };
+
   return (
     <AppShell padding={0}>
       <Container size="lg" py="xl" className="app-container">
@@ -99,13 +162,23 @@ function App() {
                   </Text>
                 </Box>
               </Group>
-              <Button
-                className="screen-only print-button"
-                leftSection={<Printer size={18} />}
-                onClick={() => window.print()}
-              >
-                Print
-              </Button>
+              <>
+                <Button
+                  className="screen-only print-button desktop-print-button"
+                  leftSection={<Printer size={18} />}
+                  onClick={() => window.print()}
+                >
+                  Print
+                </Button>
+                <Button
+                  className="screen-only print-button mobile-share-button"
+                  leftSection={<Share2 size={18} />}
+                  loading={isSharingPdf}
+                  onClick={sharePdf}
+                >
+                  Share PDF
+                </Button>
+              </>
             </Group>
 
             <Divider my="lg" />
@@ -166,6 +239,12 @@ function App() {
               >
                 Current total is {percentTotal.toFixed(2)}%. Calculations still use the entered
                 percentages.
+              </Alert>
+            ) : null}
+
+            {pdfError ? (
+              <Alert mt="md" color="red" title="PDF export failed">
+                {pdfError}
               </Alert>
             ) : null}
           </Paper>
