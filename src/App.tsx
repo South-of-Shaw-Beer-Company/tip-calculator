@@ -23,6 +23,7 @@ import {
 import { AlertTriangle, Plus, Printer, Share2, Trash2 } from 'lucide-react';
 import { calculateGroup, centsFromDollars, formatCurrency } from './calculations';
 import { loadRosterNames, rowsFromNames, saveRosterNames } from './roster-storage';
+import { loadTipSplit, saveTipSplit } from './split-storage';
 import type { EmployeeRow, GroupKey, GroupResult } from './types';
 
 let fallbackRowId = 0;
@@ -31,6 +32,7 @@ const createId = () =>
   globalThis.crypto?.randomUUID?.() ?? `row-${Date.now()}-${fallbackRowId++}`;
 
 const storedRoster = loadRosterNames();
+const storedSplit = loadTipSplit();
 
 const initialBohRows: EmployeeRow[] = storedRoster
   ? rowsFromNames(storedRoster.boh)
@@ -63,8 +65,8 @@ const loadAppIcon = async () => {
 function App() {
   const [date, setDate] = useState(today);
   const [totalTips, setTotalTips] = useState(20);
-  const [bohPercent, setBohPercent] = useState(50);
-  const [fohPercent, setFohPercent] = useState(50);
+  const [bohPercent, setBohPercent] = useState(storedSplit?.boh ?? 50);
+  const [fohPercent, setFohPercent] = useState(storedSplit?.foh ?? 50);
   const [bohRows, setBohRows] = useState<EmployeeRow[]>(initialBohRows);
   const [fohRows, setFohRows] = useState<EmployeeRow[]>(initialFohRows);
   const [isSharingPdf, setIsSharingPdf] = useState(false);
@@ -78,6 +80,10 @@ function App() {
   useEffect(() => {
     saveRosterNames(bohRows, fohRows);
   }, [bohRows, fohRows]);
+
+  useEffect(() => {
+    saveTipSplit(bohPercent, fohPercent);
+  }, [bohPercent, fohPercent]);
 
   const totalTipsCents = centsFromDollars(totalTips);
   const percentTotal = bohPercent + fohPercent;
