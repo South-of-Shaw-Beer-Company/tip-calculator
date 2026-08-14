@@ -22,6 +22,7 @@ import {
 } from '@mantine/core';
 import { AlertTriangle, Plus, Printer, Share2, Trash2 } from 'lucide-react';
 import { calculateGroup, centsFromDollars, formatCurrency } from './calculations';
+import { loadRosterNames, rowsFromNames, saveRosterNames } from './roster-storage';
 import type { EmployeeRow, GroupKey, GroupResult } from './types';
 
 let fallbackRowId = 0;
@@ -29,17 +30,23 @@ let fallbackRowId = 0;
 const createId = () =>
   globalThis.crypto?.randomUUID?.() ?? `row-${Date.now()}-${fallbackRowId++}`;
 
-const initialBohRows: EmployeeRow[] = [
-  { id: createId(), name: 'Emp 1', hours: 3 },
-  { id: createId(), name: 'Emp 2', hours: 6 },
-];
+const storedRoster = loadRosterNames();
 
-const initialFohRows: EmployeeRow[] = [
-  { id: createId(), name: 'Emp 1', hours: 5 },
-  { id: createId(), name: 'Emp 2', hours: 4 },
-  { id: createId(), name: 'Emp 3', hours: 6 },
-  { id: createId(), name: 'Emp 4', hours: 9 },
-];
+const initialBohRows: EmployeeRow[] = storedRoster
+  ? rowsFromNames(storedRoster.boh)
+  : [
+      { id: createId(), name: 'Emp 1', hours: 3 },
+      { id: createId(), name: 'Emp 2', hours: 6 },
+    ];
+
+const initialFohRows: EmployeeRow[] = storedRoster
+  ? rowsFromNames(storedRoster.foh)
+  : [
+      { id: createId(), name: 'Emp 1', hours: 5 },
+      { id: createId(), name: 'Emp 2', hours: 4 },
+      { id: createId(), name: 'Emp 3', hours: 6 },
+      { id: createId(), name: 'Emp 4', hours: 9 },
+    ];
 
 const today = new Date().toISOString().slice(0, 10);
 const appIconSrc = '/apple-touch-icon.png';
@@ -56,8 +63,8 @@ const loadAppIcon = async () => {
 function App() {
   const [date, setDate] = useState(today);
   const [totalTips, setTotalTips] = useState(20);
-  const [bohPercent, setBohPercent] = useState(10);
-  const [fohPercent, setFohPercent] = useState(90);
+  const [bohPercent, setBohPercent] = useState(50);
+  const [fohPercent, setFohPercent] = useState(50);
   const [bohRows, setBohRows] = useState<EmployeeRow[]>(initialBohRows);
   const [fohRows, setFohRows] = useState<EmployeeRow[]>(initialFohRows);
   const [isSharingPdf, setIsSharingPdf] = useState(false);
@@ -67,6 +74,10 @@ function App() {
     void import('./report-pdf');
     void loadAppIcon();
   }, []);
+
+  useEffect(() => {
+    saveRosterNames(bohRows, fohRows);
+  }, [bohRows, fohRows]);
 
   const totalTipsCents = centsFromDollars(totalTips);
   const percentTotal = bohPercent + fohPercent;
