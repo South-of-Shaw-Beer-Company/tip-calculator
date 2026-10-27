@@ -24,6 +24,7 @@ import { AlertTriangle, Plus, Printer, Share2, Trash2 } from 'lucide-react';
 import { calculateGroup, centsFromDollars, formatCurrency } from './calculations';
 import { loadRosterNames, rowsFromNames, saveRosterNames } from './roster-storage';
 import { loadTipSplit, saveTipSplit } from './split-storage';
+import { formatLocalDate } from './local-date';
 import type { EmployeeRow, GroupKey, GroupResult } from './types';
 
 let fallbackRowId = 0;
@@ -50,7 +51,7 @@ const initialFohRows: EmployeeRow[] = storedRoster
       { id: createId(), name: 'Emp 4', hours: 9 },
     ];
 
-const today = new Date().toISOString().slice(0, 10);
+const today = formatLocalDate(new Date());
 const appIconSrc = '/apple-touch-icon.png';
 
 const loadAppIcon = async () => {
