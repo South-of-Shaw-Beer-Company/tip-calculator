@@ -27,6 +27,18 @@ Fresh lockfile installation on Node 24 passed all 10 tests, lint, TypeScript/pro
 
 The required CI job now includes `npm audit --audit-level=high` for every PR, avoiding a permanently pending required check caused by path filters. The separate audit retains a weekly/manual trigger so newly published advisories can be detected without a source change. Do not disable or blanket-suppress findings to force a release.
 
+## Current dependency maintenance
+
+React and React DOM now use 19.3.1, with both React type packages on 19.3.0. The application already uses `createRoot` and the modern JSX transform; calculation, storage and PDF behavior remain unchanged. Dependabot's React groups precede the generic groups, cover runtime and development dependencies together, and include major/minor/patch updates for both version and security updates.
+
+### Temporary minimatch security overrides
+
+[GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249) affects minimatch below 11.0.1. At review time, the latest ESLint 10.14.0, config-array 0.23.5 and typescript-estree 8.72.1 still request minimatch 10.x; normal lockfile updates and non-forced audit fixes cannot remediate it. This is development-only glob-pattern processing, not calculator input processing.
+
+The overrides replace only minimatch 10.2.6 under these consumers with 11.0.1. npm requires a direct dependency's override selector to match its declared range, so ESLint uses `^10.14.0`; the two transitive parent selectors are exact. Do not broaden these selectors or replace this with an audit suppression. Remove each override when its upstream parent accepts a patched minimatch release, then regenerate the lockfile and repeat all checks.
+
+Minimatch 11 removes RegExp-oriented APIs and changes matching internals. These consumers use the retained `Minimatch.match` / `minimatch` APIs. The security regression tests require a patched lockfile, verify TSX discovery and prove TypeScript lint errors are still rejected. The original lint target set is preserved. Clean installation, all 17 tests, lint, TypeScript/build, full and production-only audits pass; both audits report zero vulnerabilities at verification time.
+
 ## Remaining production verification
 
 Node 24 CI does not establish Vercel build settings or the deployed commit. Confirm those through the provider before calling production standardized. Validate the Vercel preview before merge and production after release. GitHub Actions failure notifications must be enabled for the maintainer; scheduled audit failure alone is not an independent uptime alert. Main has not been updated merely by preparing this branch.
